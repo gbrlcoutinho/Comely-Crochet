@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const { verificarToken, verificarAdmin, authToken, authAdmin } = require('../../middlewares/auth');
 
 // Middleware para injetar prisma
 router.use((req, res, next) => {
@@ -20,7 +21,7 @@ router.get ('/crochet', async (req,res) => {
     }
 });
 
-router.post('/crochets', async (req, res) => {
+router.post('/crochets', authToken, authAdmin, async (req, res) => {
     try {
         const { title, description, price, size, material, type, stock, pictureUrl } = req.body;
 
@@ -46,7 +47,7 @@ router.post('/crochets', async (req, res) => {
     }
 });
 
-router.put('/crochets/:id', async (req, res) => {
+router.put('/crochets/:id', authToken, authAdmin, async (req, res) => {
     try {
         const { id } = req.params; 
         const dadosAtualizados = req.body; 
@@ -63,7 +64,7 @@ router.put('/crochets/:id', async (req, res) => {
     }
 });
 
-router.delete('/crochets/:id', async (req, res) => {
+router.delete('/crochets/:id', authToken, authAdmin, async (req, res) => {
     try {
         const { id } = req.params;
         await req.prisma.product.delete ({
@@ -74,7 +75,8 @@ router.delete('/crochets/:id', async (req, res) => {
     }
 
     catch (error) {
-        
+        console.error("Error while deleting the product", error);
+        res.status(500),json({error: "It wasn't possible deleting the product!"});
     }
 });
 
